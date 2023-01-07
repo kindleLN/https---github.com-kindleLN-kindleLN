@@ -1,0 +1,27 @@
+.file-detail {
+    background-color: gainsboro;
+    margin-top: 10px;
+    padding: 10px 10px;
+}
+
+.file-detail .file-name {
+    font-size: 20px;
+    width: 95%;
+}
+
+.file-detail .file-info {
+    font-size: 10px;
+    color: gray;
+    float: left;
+    line-height: 30px;
+}
+
+.file-detail .option-btn {
+    color: white;
+    font-size: 12px;
+    text-align: center;
+    float: right;
+    margin-right: 10px;
+    margin-bottom: 3px;
+}
+

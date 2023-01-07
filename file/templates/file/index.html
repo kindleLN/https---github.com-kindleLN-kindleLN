@@ -1,0 +1,46 @@
+{% extends "mainpage/base.html" %}
+
+{% block title %}
+<title>文件列表 - KindleLN</title>
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/kindleln.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
+{% if not request_from_kindle %}
+<script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+<script src="{% static 'js/folder.js' %}"></script>
+{% endif %}
+{% endblock title %}
+
+{% block content %}
+<div class="container">
+<h2>文件列表</h2>
+
+{% if request_from_kindle %}
+<div class="alert alert-danger" role="alert">已禁用JavaScript，您无法上传文件。</div>
+{% else %}
+<div class="alert alert-success" role="alert">JavaScript已启用！您可以上传文件了。</div>
+<div>
+    <button type="button" id="upload" class="btn btn-success">上传文件</button>
+    <span>请注意：上传文件后需要时间写入数据，请稍后刷新查看是否上传。</span>
+	<!--文件上传表单-->
+	<form action="{% url 'file:upload' path=path %}" method="post" enctype="multipart/form-data" id="upload_form">
+		{% csrf_token %}
+		<input type="file" name="files" id="file_upload" multiple="multiple" style="display:none">
+	</form>
+</div>
+{% endif %}
+
+{% for file in files %}
+<div class="file-detail">
+    <div class="file-name">{{ file.name }}</div>
+    <div class="file-info">{{ file.getFileInfo }}</div>
+    <div class="clearfix">
+        <a class="btn btn-danger option-btn" href="{% url 'file:delete_confirmation' file_name=file.name %}" role="button">删除</a>
+        <a class="btn btn-primary option-btn" href="{% url 'file:rename' file_name=file.name %}" role="button">重命名</a>
+        <a class="btn btn-primary option-btn" href="{% url 'file:download' path=file.getUrlPath %}" role="button">下载</a>
+    </div>
+</div>
+{% endfor %}
+</div> <!-- <div class="container"> -->
+
+{% endblock content %}

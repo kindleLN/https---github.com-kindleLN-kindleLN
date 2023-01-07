@@ -1,0 +1,7 @@
+/venv310
+/html
+__pycache__/
+migrations/
+/dragonSite
+*.sqlite3
+netdisk

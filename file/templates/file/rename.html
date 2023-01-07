@@ -1,0 +1,23 @@
+{% extends "mainpage/base.html" %}
+
+{% block title %}
+<title>[重命名]{{ file.name }} - KindleLN</title>
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'css/kindleln.css' %}">
+{% endblock title %}
+
+{% block content %}
+<div class="container">
+    <p style="font-size: 30px;">[重命名]{{ file.name }}</p>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+        <label for="new_name">新的文件名</label>
+        <input type="text" class="form-control" id="new_name" name="new_name" placeholder="{{ file.name }}">
+        <p class="help-block">请勿输入[/][$][^][(空格)]等字符</p>
+        <button type="submit" class="btn btn-primary">提交</button>
+        </div>
+    </form>
+</div>
+{% endblock content %}

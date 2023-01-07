@@ -1,0 +1,42 @@
+{% extends 'mainpage/base.html' %}
+
+{% block title %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+<title>{{book_obj.name}} - KindleLightNovel</title>
+{% endblock title %}
+
+{% block content %}
+<div>
+    <div style="color: red;">CSS什么的一会再说 用得是BootStrapV3</div>
+    <div>{{book_obj.name}}</div>
+    <div>{{book_obj.id}}</div>
+    <div>{{book_obj.source}}</div>
+    <div>{{book_obj.author}}</div>
+    <div>{{book_obj.last_update_date}}</div>
+    <div>{{book_obj.added_date}}</div>
+</div>
+<br>
+{% if downloaded %} <!--有已经下载的文件了-->
+<div>
+    <button>点这里提交更新检查...</button>
+    <div class="input-group">
+        <input type="text" class="form-control" placeholder="你的Kindle邮件地址" aria-describedby="basic-addon2">
+        <span class="input-group-addon" id="basic-addon2">@kindle.<b>com</b></span>
+    </div>
+    <div>
+        <button>推送！</button>
+    </div>
+</div>
+
+    {% elif downloading %}<!--没有文件，但是来源的下载函数写好了，可以下载-->
+    <div>目前啥都没有...</div>
+    <div>由于本书有来源，下载请求已经自动提交，请稍后回来查看</div>
+    {% else %}<!--剩下的就是没有文件无法下载-->
+    <div>目前啥都没有...</div>
+    <div>并且，由于没有下载的方法，此书暂不提供推送.</div>
+
+    {% endif %}
+</div>
+
+{% endblock content %}
