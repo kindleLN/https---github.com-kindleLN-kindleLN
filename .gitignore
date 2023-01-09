@@ -5,3 +5,5 @@ migrations/
 /dragonSite
 *.sqlite3
 netdisk
+/epubFile
+data.json

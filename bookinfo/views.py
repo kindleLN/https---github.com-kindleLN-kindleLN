@@ -1,32 +1,97 @@
 # from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
+from django.http import Http404
 
-from .models import BookModel
+from .models import BookModel, VolumeModel
+from file.models import CheckUpdateRequestModel, FileModel
+from file.utils import makeCheckUpdateRequset, makePushRequest
+from django.utils import timezone
 
 
 # Create your views here.
+def indexView(r):
+    books = BookModel.objects.filter(is_deleted=False).order_by('-last_update_time')
+    print(books)
+
+    return render(r, 'bookinfo/index.html', {'books': books, 'r': r})
+
+
 def infoView(r, id):
     downloading, downloaded = False, False
+    msg = None
 
     book_obj = get_object_or_404(BookModel, id=id, is_deleted=False)
     source = book_obj.source
+    vols = VolumeModel.objects.filter(book=book_obj)
+    
+    last_update_req = CheckUpdateRequestModel.objects.filter(book=book_obj).order_by('-request_time')
+    if last_update_req and (timezone.now() - last_update_req[0].request_time).days <= 2:# 这里是运用 A and B
+        update_checked = True
+    else:
+        update_checked = False
 
     # 有已经下载的文件了
     if book_obj.has_static_files:
         downloaded = True
+        for i in vols:
+            f_obj = FileModel.objects.get(id=i.file_id)
+            i.file_name = f_obj.name
     # 没有文件，但是来源的下载函数写好了，可以下载
     elif source is not None and source.has_download_function:
-        from file.utils import downloadBook
-        downloadBook(book_obj.novel_id_in_source, source.name)
+        makeCheckUpdateRequset(book_obj)
+        update_checked = True
         downloading = True
+        book_obj.has_static_files = True
+        book_obj.save()
     # 剩下的没有文件无法下载
 
-        
+
+
+    if r.method == 'POST':
+        file_id = []
+        files = []
+        dct = dict(r.POST)
+        email = (dct['email'][0] + '@kindle.com').replace(' ', '')
+
+        if 'all' in dct.keys():# 全部推送
+            for i in vols:
+                file_id.append(i.id)
+        else:
+            for i in dct.keys():# 排除干扰项
+                if str(i) == 'csrfmiddlewaretoken' or str(i) == 'email':
+                    continue
+                elif dct[str(i)] == ['on']:# 如果开了就加进去
+                    file_id.append(int(i))
+                    # 其实这里可以利用不选中无key的特性，懒得弄了
+
+        # 转换为Vol对象
+        for i in file_id:
+            file = VolumeModel.objects.get(id=i)
+            files.append(file)
+
+        makePushRequest(email, files)
+        msg = '成功登记 %i 个对象至 %s.'%(len(files), email)
+
     dct = {
-        'book_obj': book_obj, 
+        'book': book_obj, 
         'downloading': downloading, 
         'downloaded': downloaded, 
+        'update_checked': update_checked,
+        'vols': vols,
+        'msg': msg,
+        'r': r
     }
+
+
     return render(r, 'bookinfo/info.html', context=dct)
 
 
+def checkUpdateView(r, id):
+    book_obj = get_object_or_404(BookModel, id=id, is_deleted=False)
+    last_update_req = CheckUpdateRequestModel.objects.filter(book=book_obj).order_by('-request_time')
+    if last_update_req and (timezone.now() - last_update_req[0].request_time).days <= 2:# 这里是运用 A and B
+        raise Http404
+
+    makeCheckUpdateRequset(book_obj)
+
+    return redirect('/info/%i'%id) # 下下策

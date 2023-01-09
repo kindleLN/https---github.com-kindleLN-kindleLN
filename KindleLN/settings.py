@@ -25,12 +25,14 @@ SECRET_KEY = 'django-insecure-5+j=cs4!4(ay5w5juv1=o8&of=%nhla-qsh_lspz)bg8omglz8
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'initer.apps.IniterConfig', 
+    'user.apps.UserConfig',
     'bookinfo.apps.BookinfoConfig',
     'mainpage.apps.MainpageConfig',
     'file.apps.FileConfig',
@@ -124,6 +126,8 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')
 ]
+
+LOGIN_URL = '/user/login/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field

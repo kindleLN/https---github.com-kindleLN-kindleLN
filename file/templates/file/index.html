@@ -32,6 +32,7 @@
 
 {% for file in files %}
 <div class="file-detail">
+    <div class="file-info-prev">[{{ file.id }}]{{ file.digest.getDigestInfo }}</div>
     <div class="file-name">{{ file.name }}</div>
     <div class="file-info">{{ file.getFileInfo }}</div>
     <div class="clearfix">

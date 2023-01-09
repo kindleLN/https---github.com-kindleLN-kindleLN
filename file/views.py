@@ -5,7 +5,7 @@ from django.http import FileResponse, Http404, HttpResponse, HttpResponseRedirec
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.urls import reverse
 
-from .models import File
+from .models import FileModel
 from .utils import *
 
 # Create your views here.
@@ -13,11 +13,11 @@ from .utils import *
 def indexView(r):
     if r.method != 'GET' or not r.user.is_superuser:
         raise Http404
-    files = File.objects.order_by('-upload_time')
+    files = FileModel.objects.order_by('-upload_time')
     ua = r.headers["User-Agent"]
     request_from_kindle = (judgeUa(ua)=='k')
 
-    return render(r, 'file/index.html', {'files': files, 'request_from_kindle': request_from_kindle})
+    return render(r, 'file/index.html', {'files': files, 'request_from_kindle': request_from_kindle, 'r': r})
 
 
 @login_required
@@ -25,33 +25,34 @@ def deleteConfirmationView(r, file_name):
     if r.method != 'GET' or not r.user.is_superuser:
         raise Http404
 
-    file = get_object_or_404(File, name=file_name)
+    file = get_object_or_404(FileModel, name=file_name)
     
-    return render(r, 'file/delete_confirmation.html', {'file': file})
+    return render(r, 'file/delete_confirmation.html', {'file': file, 'r': r})
 
 
 @login_required
 def deleteView(r, path):
-    if r.method != 'GET' or not r.user.is_superuser:
+    if not r.user.is_superuser:
         raise Http404
 
     name = os.path.basename(path)
-    file = get_object_or_404(File, name=name)
+    print('>>> [deleteView]', name)
+    file = get_object_or_404(FileModel, name=name)
     file.delete()
-    message = "文件：%s删除成功"%name
-    return HttpResponse(message)
+    return redirect('file:index')
 
 
 @login_required
 def renameView(r, file_name):
+    doCheckUpdateRequest()
     if not r.user.is_superuser:
         raise Http404('应该是503')
 
     if r.method == 'GET':
         print(file_name)
-        file = get_object_or_404(File, name=file_name)
+        file = get_object_or_404(FileModel, name=file_name)
 
-        return render(r, 'file/rename.html', {'file': file})
+        return render(r, 'file/rename.html', {'file': file, 'r': r})
 
     else:
         new_name = r.POST.get('new_name')
@@ -68,8 +69,9 @@ def uploadView(r, path):
         raise Http404
 
     files = r.FILES.getlist("files")
-    handle_upload_files(files, r.user)
-    return HttpResponse('6')
+    handleUploadFiles(files, r.user)
+
+    return HttpResponseRedirect(reverse('file:index'))
 
 
 @login_required
@@ -78,7 +80,7 @@ def downloadView(r, path):
         raise Http404
 
     name = os.path.basename(path)
-    file = get_object_or_404(File, name=name)
+    file = get_object_or_404(FileModel, name=name)
     response = FileResponse(open(file.getFilePath(), 'rb'))
     response["Content-Length"] = file.size
     response['Content-Disposition'] = 'attachment;filename=%s'%name

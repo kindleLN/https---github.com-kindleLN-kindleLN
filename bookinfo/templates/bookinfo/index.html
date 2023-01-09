@@ -1,0 +1,27 @@
+{% extends 'mainpage/base.html' %}
+
+{% block title %}
+<title>所有书籍 - KindleLN</title>
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/kindleln.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
+<style>
+    .book-index-view {
+    width: 180px;
+    height: 580px;
+    background-color: aquamarine;
+    margin: 20px;
+}
+</style>
+{% endblock title %}
+
+<div class="container">
+    {% for book in books %}
+    <div class="book-index-view">
+        {{ book.name }}
+    </div>
+    {% endfor %}
+</div>
+
+{% block content %}
+{% endblock content %}

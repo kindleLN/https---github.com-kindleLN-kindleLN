@@ -5,9 +5,96 @@
     {% block title %}
         <title>Base Template</title>
     {% endblock title %}
+    {% load static %}
 </head>
+<style>
+    img {
+        height: 100%;
+    }
+
+    .footer {
+    text-align: center;
+    color: grey;
+    font-size: 10px;
+    padding-bottom: 30px;
+    background-color: rgb(221, 221, 221);
+    padding-top: 30px;
+    margin-top: 70px;
+    }
+
+    .header {
+        background-color: #f8f8f8;
+        border: 1px solid #e7e7e7;
+        margin-bottom: 50px;
+    }
+
+    .header .left-header{
+        float: left;
+        margin-left: 30px;
+    }
+
+    .header a {
+        text-decoration: none;
+        line-height: 50px;
+        color: #777;
+        font-size: 17px;
+        margin: auto 10px;
+    }
+
+    .header a:hover {
+        color: #333;
+    }
+
+    .header .right-header{
+        float: right;
+        margin-right: 30px;
+    }
+
+    .header .logo {
+        margin: auto 30px;
+        float: left;
+        height: 50px;
+    }
+
+    .header .logo img{
+        height: 30px;
+    }
+
+</style>
 <body>
+
+
+<div class="header clearfix">
+    <div class="logo">
+        <a href="{% url 'mainpage:mainpage' %}">
+            <img src="{% static 'img/kindleLN-logo.png' %}" alt="KindleLN">
+        </a>
+    </div>
+    <div class="left-header">
+        <a href="{% url 'info:index' %}">所有书籍</a>
+        {% if r.user.is_superuser %}
+        <a href="{% url 'file:index' %}">文件页面</a>
+        {% endif %}
+    </div>
+    <div class="right-header">
+        {% if r.user.is_superuser %}
+        <a href="/admin/">管理页面</a>
+        <a href="{% url 'user:logout' %}">退出登录</a>
+        {% endif %}
+    </div>
+</div>
+
+    
+    
 {% block content %}
 {% endblock content %}
+
+
+<div class="footer">
+    <div>本站内容均来自于网络，如有争议请联系{{ contact_email }}</div>
+    <div>(c)2023- kindleLN</div>
+</div>
+
+
 </body>
 </html>
