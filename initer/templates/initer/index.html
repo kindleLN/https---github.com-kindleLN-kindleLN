@@ -1,0 +1,29 @@
+{% extends 'mainpage/base.html' %}
+
+{% block title %}
+<title>所有错误信息 - KindleLN</title>
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/kindleln.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
+{% endblock title %}
+
+
+{% block content %}
+<div class="container">
+
+{% for i in errors %}
+{% if i.read %}
+<div class="error-list error-list-read">
+    <p>【已读】</p>
+{% else %}
+<div class="error-list error-list-unread">
+    <p>【未读】</p>
+{% endif %}
+    <h2><a href="{% url 'error:info' id=i.id %}">{{ i.raised_time }}</a></h2>
+    <div>由<code>{{ i.raised_by }}</code>发起</div>
+    <div>简述：<code>{{ i.error_repr }}</code></div>
+</div>
+{% endfor %}
+
+</div>
+{% endblock content %}

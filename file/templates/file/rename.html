@@ -9,7 +9,7 @@
 
 {% block content %}
 <div class="container">
-    <p style="font-size: 30px;">[重命名]{{ file.name }}</p>
+    <h2>[重命名]{{ file.name }}</h2>
     <form method="post">
         {% csrf_token %}
         <div class="form-group">

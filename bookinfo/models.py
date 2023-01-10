@@ -34,18 +34,19 @@ class BookModel(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=256)
     author = models.ForeignKey(AuthorModel, on_delete=models.CASCADE)
-    last_update_time = models.DateTimeField()
+    last_update_time = models.DateTimeField(help_text='这里允许您修改【上次更新时间】，不过一般情况下，我们不建议您这么做！')
     added_time = models.DateTimeField(auto_now_add=True)
     source = models.ForeignKey(SourceModel, on_delete=models.CASCADE, blank=True, null=True)
     novel_id_in_source = models.CharField(max_length=256, blank=True, help_text='指在来源站点中的ID')
     has_static_files = models.BooleanField(default=False, help_text='是否已经有静态文件于服务器中')
     is_deleted = models.BooleanField(default=False, help_text='如果勾选，则会404')
-    has_warning = models.BooleanField(default=False)
-    warning = models.TextField(null=True, blank=True, help_text='系统会在此给出警告')
     
 
     def __str__(self) -> str:
         return self.name
+
+    def __lt__(self, other):
+        return self.id > other.id
 
     class Meta:
         verbose_name = '书籍'

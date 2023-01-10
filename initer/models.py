@@ -1,8 +1,8 @@
 from django.db import models
 
 # Create your models here.
-class Initer(models.Model):
-    '''这个app被用于初始化网站和便捷管理网站'''
+class IniterModel(models.Model):
+    '''这个model被用于初始化网站和便捷管理网站'''
     readme1 = models.TextField(
         help_text='请仔细阅读上方说明，并按提示操作。', 
         blank=True, 
@@ -20,7 +20,7 @@ class Initer(models.Model):
         max_length=256, 
         help_text='用于【发送】邮件的邮箱的密码/授权码。'+
         '【我应该输入密码还是授权码？】这取决于您的邮箱安全设置。如果您在开启POP3/SMTP/IMAP服务时，'+
-        '邮箱明确提示您“在第三方客户端登录时，登录密码输入以下授权码”，则请输入授权码；否则，请输入密码。'+
+        '邮箱明确提示您“登录密码输入以下授权码”，则请输入授权码；否则，请输入密码。'+
         '【警告】这个密码/授权码会明文保存于本地文件，请确保您的邮箱不会暴露您的个人信息！'
         )
     
@@ -69,3 +69,39 @@ class Initer(models.Model):
     class Meta:
         verbose_name = '初始化器'
         verbose_name_plural = '初始化器'
+
+
+class ManagerModel(models.Model):
+    """ 这个model只是提供一个方便管理的媒介 """
+    readme = models.TextField(
+        blank=True,
+        null=True, 
+        default='点进来似乎没什么用', 
+        help_text='这个model只是为了方便地使用action罢了，内容不重要。'
+    )
+
+    def __str__(self) -> str:
+        return '除了选中我，我就没什么实际作用了。'
+    
+    class Meta:
+        verbose_name = '常规管理器'
+        verbose_name_plural = '常规管理器'
+
+
+class ErrorModel(models.Model):
+    """ 这个model用于存储全站的报错 """
+    id = models.AutoField(primary_key=True)
+    raised_time = models.DateTimeField(auto_now_add=True)
+    raised_by = models.TextField(blank=True, null=True, help_text='报错者（?）')
+    error_repr = models.TextField(blank=True, null=True, help_text='错误的repr')
+    error_info = models.TextField(blank=True, null=True, help_text='错误的详细信息')
+    read = models.BooleanField(default=False, help_text='已读')
+
+    def __str__(self) -> str:
+        return self.error_repr
+
+    
+    class Meta:
+        verbose_name = '错误'
+        verbose_name_plural = '错误'
+

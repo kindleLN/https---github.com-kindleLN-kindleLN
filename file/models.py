@@ -31,6 +31,7 @@ class FileModel(models.Model):
     digest = models.ForeignKey('DigestModel', on_delete=models.CASCADE, null=False, help_text='警告：请勿随意修改，除非你知道你在做什么！')
     upload_time = models.DateField(auto_now_add=True)
     size = models.IntegerField(default=0)
+    is_auto_upload_file = models.BooleanField(default=True, help_text='是否为系统自动上传的文件')
     
     def __str__(self):
         return self.name
@@ -39,10 +40,11 @@ class FileModel(models.Model):
         return '文件大小：%s | 创建时间：%s'%(self.getFileSize(), self.upload_time)
 
     def delete(self):
-        vol_obj = VolumeModel.objects.get(file_id=self.id)
-        vol_obj.delete()
-        super().delete(using=None, keep_parents=False)
+        if self.is_auto_upload_file:
+            vol_obj = VolumeModel.objects.get(file_id=self.id)
+            vol_obj.delete()
         self.digest.checkDigest()
+        super().delete(using=None, keep_parents=False)
         
     def getUrlPath(self):
         return self.name
@@ -83,11 +85,10 @@ class DigestModel(models.Model):
         return os.path.join(MEDIA_ROOT, self.digest)
 
     def checkDigest(self):
-        digest = self.digest
-        # 文件不存在但库有记录，删除该条记录
+        # 实际文件不存在但MD5库有记录，删除该条记录
         if not os.path.isfile(self.getMd5Path()):
             self.delete()
-        # 文件存在且有记录，但没有关联的文件记录，删除文件和记录
+        # 实际文件存在且MD5有记录，但没有关联的FileModel，删除实际文件和MD5记录
         elif not self.filemodel_set.all():
             os.remove(self.getMd5Path())
             self.delete()

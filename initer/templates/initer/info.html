@@ -1,0 +1,23 @@
+{% extends 'mainpage/base.html' %}
+
+{% block title %}
+<title>错误详情 - KindleLN</title>
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/kindleln.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
+{% endblock title %}
+
+
+{% block content %}
+<div class="container error-info">
+
+<h2>{{ e.raised_time }}</h2>
+<div>这是报错的发起者(<code>obj.__name__</code>)</div>
+<pre>{{ e.raised_by }}</pre>
+<div>这是报错的简略信息(<code>repr(e)</code>)</div>
+<pre>{{ e.error_repr | linebreaks }}</pre>
+<div>这是报错的详细信息(<code>traceback.format_exc()</code>)</div>
+<pre>{{ e.error_info | linebreaks }}</pre>
+
+</div>
+{% endblock content %}

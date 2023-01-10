@@ -20,6 +20,7 @@ import requests
 from bs4 import BeautifulSoup
 from django.conf import settings
 from django.shortcuts import get_object_or_404
+from initer.utils import catchError
 from django.utils import timezone
 
 from bookinfo.models import VolumeModel
@@ -36,6 +37,8 @@ from email.mime.multipart import MIMEMultipart
 MEDIA_ROOT = os.path.join(settings.MEDIA_ROOT, 'netdisk')
 JSON_FILE_PATH = os.path.join(STATIC_URL, 'data.json')
 
+
+@catchError
 def doCheckUpdateRequest():
     time.sleep(getJsonConfig('time_interval_between_two_update_check'))
 
@@ -53,15 +56,8 @@ def doCheckUpdateRequest():
             data = lnd_main.main(int(book_id_in_source), source_name)
             book.has_static_files = True
             book.save()
-        except RuntimeError as e:
-            msg = '''
-[%s(UTC+8)]程序抛出了如下错误，请人工解决！
-正在处理的CheckUpdateRequest ID: %i（已经将该请求设置为Done）
-Python返回的错误信息：%s'''%(req, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), repr(e))
-            book.has_waring = True
-            book.warning = msg  
-            book.save()
-            return
+        except Exception as e:
+            raise
         finally:
             req.done = True
             req.done_time = timezone.now()
@@ -95,15 +91,8 @@ Python返回的错误信息：%s'''%(req, datetime.datetime.now().strftime('%Y-%
         if linovelib_vols:
             try:
                 data = lnd_main.main(int(book_id_in_source), 'linovelib', download_all_volumes=False, download_vol_names=linovelib_vols)
-            except RuntimeError as e:
-                msg = '''
-[%s(UTC+8)]程序抛出了如下错误，请人工解决！
-正在处理的CheckUpdateRequest ID: %i（已经将该请求设置为Done）
-Python返回的错误信息：%s'''%(req, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), repr(e))
-                book.has_waring = True
-                book.warning = msg  
-                book.save()
-                return
+            except Exception as e:
+                raise
             finally:
                 req.done = True
                 req.done_time = timezone.now()
@@ -114,15 +103,8 @@ Python返回的错误信息：%s'''%(req, datetime.datetime.now().strftime('%Y-%
         elif (timezone.now() - last_update_in_linovelib).days <= 30:
             try:
                 data = lnd_main.main(int(book_id_in_source), 'linovelib', download_all_volumes=False, download_vol_names=[last_vol])
-            except RuntimeError as e:
-                msg = '''
-[%s(UTC+8)]程序抛出了如下错误，请人工解决！
-正在处理的CheckUpdateRequest ID: %i（已经将该请求设置为Done）
-Python返回的错误信息：%s'''%(req, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), repr(e))
-                book.has_waring = True
-                book.warning = msg  
-                book.save()
-                return
+            except Exception as e:
+                raise
             finally:
                 req.done = True
                 req.done_time = timezone.now()
@@ -144,10 +126,17 @@ Python返回的错误信息：%s'''%(req, datetime.datetime.now().strftime('%Y-%
         )
         vol_obj.save()
 
+    book.last_update_time = timezone.now()
+    book.save()
+    req.done = True
+    req.done_time = timezone.now()
+    req.save()
 
+
+@catchError
 def doPushRequest():
-    print('>>> [SendEmail]Now Trying...')
     time.sleep(getJsonConfig('time_interval_between_two_push'))
+    print('>>> [SendEmail]Now Trying...')
 
     # 基本设置
     fromaddr = getJsonConfig('do_push_email')
@@ -167,11 +156,13 @@ def doPushRequest():
     # 要推送的对象、文件
     toaddrs = [req.email.email]
     file_path = os.path.join(MEDIA_ROOT, req.file.digest.digest)
-    shutil.copy(file_path, req.file.name)# 拷贝一份到运行目录并重命名，我知道这么做不规范（笑
+    print(file_path)
+    shutil.copy(file_path, req.file.name)
+    # 拷贝一份到运行目录并重命名，我知道这么做不规范（笑
     file_name = req.file.name
 
     #发送邮件
-    content = 'HELLO! HAVE A NICE DAY! '
+    content = '[%s]UTC+8\nTO:%s\nFILE:%s'%(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), str(toaddrs), file_name)
     text_apart = MIMEText(content)
 
     file_apart = MIMEApplication(open(file_name, 'rb').read())
@@ -187,21 +178,28 @@ def doPushRequest():
         server.login(fromaddr, pwd)
         server.sendmail(fromaddr, toaddrs, mail.as_string())
         server.quit()
+
         req.done = True
         req.done_time = timezone.now()
         req.save()
+        req.email.last_push_time = timezone.now()
+        req.email.total_push_times += 1
+        req.email.save()
     except Exception:
         print('>>> [SendEmail] 出错了！')
         raise
+    finally:
+        os.remove(req.file.name)
 
 
-
+@catchError
 def getJsonConfig(config_name):
     with open(JSON_FILE_PATH, 'r') as j:
         conf = json.load(j)
     return conf[config_name]
 
 
+@catchError
 def makeCheckUpdateRequset(book_boj):
     cur = CheckUpdateRequestModel.objects.create(
         book=book_boj,
@@ -211,6 +209,7 @@ def makeCheckUpdateRequset(book_boj):
     cur.save()
 
 
+@catchError
 def makePushRequest(email, file_id):
     email_obj, b = EmailModel.objects.get_or_create(email=email)
     for v in file_id:
@@ -224,6 +223,7 @@ def makePushRequest(email, file_id):
         print(pr)
 
 
+@catchError
 def rename(old_name, new_name):
     file = get_object_or_404(FileModel, name=old_name)
     suffix = os.path.splitext(old_name)[1]
@@ -237,11 +237,13 @@ def rename(old_name, new_name):
     file.save()
 
 
+@catchError
 def checkPathExits(path):
     if not os.path.isdir(path):
         os.makedirs(path)
 
 
+@catchError
 def handleUploadFilesForLnd(file):
     # 获取当前目录内的文件
     file_list = FileModel.objects.filter()
@@ -250,8 +252,7 @@ def handleUploadFilesForLnd(file):
 
     digest = hashlib.md5()
     # 防止文件重名
-    name = file
-    unique_name = getUniqueFileName(name, file_list)
+    unique_name = getUniqueFileName(file, file_list)
     # 计算文件的MD5并作为文件名保存至MEDIA_ROOT
     with open(os.getcwd()+'\\'+file, 'rb') as f_obj:
         while True:
@@ -269,6 +270,7 @@ def handleUploadFilesForLnd(file):
     shutil.move(file, file_path)
 
 
+@catchError
 def handleUploadFiles(files, user):
     # 获取当前目录内的文件
     file_list = FileModel.objects.filter()
@@ -293,11 +295,12 @@ def handleUploadFiles(files, user):
         file_path = os.path.join(MEDIA_ROOT, digest)
         digest_obj, created = DigestModel.objects.get_or_create(digest=digest)
         # 创建文件对象
-        FileModel.objects.create(name=unique_name, digest=digest_obj, size=file.size)
+        FileModel.objects.create(name=unique_name, digest=digest_obj, size=file.size, is_auto_upload_file=False)
         # 重命名文件
         shutil.move(temp_name, file_path)
 
 
+@catchError
 def getUniqueFolderName(name, content_list):
     ## 检查是否有重名的文件夹并按顺序生成新名称
     folder_list = [content.name for content in content_list]
@@ -309,6 +312,7 @@ def getUniqueFolderName(name, content_list):
     return name
 
 
+@catchError
 def getUniqueFileName(name, content_list):
     ## 检查是否有重名的文件夹并按顺序生成新名称
     prefix, suffix = os.path.splitext(name)
@@ -321,6 +325,7 @@ def getUniqueFileName(name, content_list):
     return name
 
 
+@catchError
 def judgeUa(ua):
     """
     判断访问来源是pc端还是手机端
@@ -368,6 +373,7 @@ def judgeUa(ua):
     return 'c'
 
 
+@catchError
 def getLinovelibVolumeUpdates(id):
     now_vols = []
     catalog_url = 'https://w.linovelib.com/novel/%s/catalog' %id
@@ -382,6 +388,7 @@ def getLinovelibVolumeUpdates(id):
     return now_vols
 
 
+@catchError
 def getLinovelibLastUpdateDate(id):
     info_url = 'https://w.linovelib.com/novel/%s.html' %id
 
@@ -403,6 +410,7 @@ class File:
         self.name = name
 
 
+@catchError
 def makeEpubFile(vol):
     '''
     直接输出.epub文件
@@ -432,6 +440,7 @@ def makeEpubFile(vol):
     return (vol.name, file_name)
 
 
+@catchError
 def writeContent(vol):
     html1 = '''<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
@@ -473,6 +482,7 @@ def writeContent(vol):
         f.write(tmp_html%vol.info)
 
 
+@catchError
 def writeOpf(vol):
     html = '''
 <?xml version="1.0" encoding="utf-8" ?>
@@ -531,6 +541,7 @@ def writeOpf(vol):
         f.write(tmp_html)
 
 
+@catchError
 def writeNcx(vol):
     html1 = '''
 <?xml version="1.0" encoding="UTF-8"?>
@@ -567,6 +578,7 @@ def writeNcx(vol):
             f.write(html2%(i.chapter_id, i.chapter_id+1, i.name, i.chapter_id))
 
 
+@catchError
 def getZip(dir_path: str, file_full_name: str):
     zip_ = ZipFile(file_full_name, "w", ZIP_DEFLATED)
     for path, dirnames, filenames in os.walk(dir_path):
@@ -579,6 +591,7 @@ def getZip(dir_path: str, file_full_name: str):
     zip_.close()
 
 
+@catchError
 def textReplacer(string: str, vol):
     string = string.replace('\n', '')
     string = string.replace('\r', '')
@@ -602,6 +615,7 @@ def textReplacer(string: str, vol):
     return string
             
 
+@catchError
 def getEmojiUrl(emoji: str):
     url = 'https://www.emojiall.com/zh-hans/image/%s'%parse.quote(emoji)
     soup = getPageHtmlSoup(url)
@@ -612,6 +626,7 @@ def getEmojiUrl(emoji: str):
     return 'https://www.emojiall.com%s'%img_attr['data-src']
     
 
+@catchError
 def getPageHtmlSoup(url: str, retry_times=3, print_msg=True, encode='utf-8', use_request=False, use_pc_ua=False) -> BeautifulSoup:
 
     time.sleep(random.randint(5, 20)/10)
@@ -660,6 +675,7 @@ def getPageHtmlSoup(url: str, retry_times=3, print_msg=True, encode='utf-8', use
     return getPageHtmlSoup(url)
 
 
+@catchError
 def downloadFiles(files: list, save_path: str, print_msg=True, mode='wb'):
     time.sleep(random.randint(5, 20)/10)
 
@@ -1204,6 +1220,7 @@ CONTAINER = '''<?xml version="1.0" encoding="UTF-8"?>
 '''
 
 
+# 这家伙是直接把整个css都复制过来了？？？
 FLOW0012 = '''/** ------------------------------------------------------------------------------------------------------ **/
 /** 全局样式设定 **/
 /** ------------------------------------------------------------------------------------------------------ **/
@@ -2539,11 +2556,13 @@ span.kk
 '''
 
 
+@catchError
 def getFakeUA():
     global MOBILE
     return random.choice(MOBILE)
 
 
+@catchError
 def makeEpubFileDir(path: str):
     '''在path下新建一个epubFile，代替原本的copytree'''
     global MINETYPE, CONTAINER, FLOW0012

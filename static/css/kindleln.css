@@ -31,8 +31,148 @@
 }
 
 
-.book-info div{
+.book-info div {
     line-height: 40px;
     border: 1px solid rgb(221, 221, 221);
 }
 
+.footer {
+    text-align: center;
+    color: grey;
+    font-size: 10px;
+    padding-bottom: 30px;
+    background-color: rgb(221, 221, 221);
+    padding-top: 30px;
+    margin-top: 70px;
+}
+
+.header {
+    background-color: #f8f8f8;
+    border: 1px solid #e7e7e7;
+}
+
+.header .left-header {
+    float: left;
+    margin-left: 30px;
+}
+
+.header a {
+    text-decoration: none;
+    line-height: 50px;
+    color: #777;
+    font-size: 17px;
+    margin: auto 5px;
+}
+
+.header a:hover {
+    color: #333;
+}
+
+.header .right-header {
+    float: right;
+    margin-right: 10px;
+}
+
+.header .logo {
+    margin: auto 10px;
+    float: left;
+    height: 50px;
+}
+
+.header .logo img {
+    height: 30px;
+}
+
+.book-index-view {
+    width: 300px;
+    height: 180px;
+    margin: 10px 20px;
+    display: inline-block;
+    padding: 15px;
+    background-color: #f8f8f8;
+}
+
+.book-index-view .book-cover {
+    /* display: inline-block; */
+    width: 100px;
+    float: left;
+    margin-right: 20px;
+}
+
+.book-index-view .book-cover img {
+    width: 100%;
+}
+
+.book-index-view a {
+    width: 100%;
+    height: auto;
+    display: inline-block;
+}
+
+.book-index-view .book-title {
+    text-decoration: none;
+    font-size: 17px;
+    color: black;
+    font-weight: 700;
+    margin-bottom: 30px;
+}
+
+.book-index-view .book-info {
+    color: grey;
+    font-size: 12px;
+    line-height: 10px;
+}
+
+.search {
+    width: 290px;
+    margin: 10px auto;
+}
+
+.jump-to-admin-in-info {
+    width: 250px;
+    margin: 20px auto;
+}
+
+.jump-to-admin-in-info .jump-to-admin-in-info-btn {
+    width: 250px;
+}
+
+.jump-to-admin-in-info p {
+    line-height: 20px;
+    margin: 0px;
+}
+
+
+.error-list-read {
+    height: 150px;
+    margin: 20px auto;
+    padding: 10px ;
+    background-color: #f8f8f8;
+}
+
+.error-list-unread {
+    height: 150px;
+    margin: 20px auto;
+    padding: 10px ;
+    background-color: #dddddd;
+}
+
+.error-list div {
+    margin-top: 10px;
+}
+.error-list p {
+    margin: 0;
+}
+.error-list h2 {
+    margin-top: 0;
+}
+.error-list a {
+    color: black;
+}
+.error-list a:hover {
+    color: black;
+}
+
+.error-info div {
+    margin-top: 20px;
+}

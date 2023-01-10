@@ -9,6 +9,7 @@ from .models import FileModel
 from .utils import *
 
 # Create your views here.
+@catchError
 @login_required
 def indexView(r):
     if r.method != 'GET' or not r.user.is_superuser:
@@ -20,6 +21,7 @@ def indexView(r):
     return render(r, 'file/index.html', {'files': files, 'request_from_kindle': request_from_kindle, 'r': r})
 
 
+@catchError
 @login_required
 def deleteConfirmationView(r, file_name):
     if r.method != 'GET' or not r.user.is_superuser:
@@ -30,6 +32,7 @@ def deleteConfirmationView(r, file_name):
     return render(r, 'file/delete_confirmation.html', {'file': file, 'r': r})
 
 
+@catchError
 @login_required
 def deleteView(r, path):
     if not r.user.is_superuser:
@@ -39,9 +42,11 @@ def deleteView(r, path):
     print('>>> [deleteView]', name)
     file = get_object_or_404(FileModel, name=name)
     file.delete()
+    
     return redirect('file:index')
 
 
+@catchError
 @login_required
 def renameView(r, file_name):
     doCheckUpdateRequest()
@@ -63,6 +68,7 @@ def renameView(r, file_name):
         return HttpResponseRedirect(reverse('file:index'))
         
 
+@catchError
 @login_required
 def uploadView(r, path):
     if r.method != 'POST' or not r.user.is_superuser:
@@ -74,6 +80,7 @@ def uploadView(r, path):
     return HttpResponseRedirect(reverse('file:index'))
 
 
+@catchError
 @login_required
 def downloadView(r, path):
     if r.method != 'GET' or not r.user.is_superuser:

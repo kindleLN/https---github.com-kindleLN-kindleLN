@@ -29,6 +29,13 @@
     </div>
 </div>
 
+{% if r.user.is_superuser %}
+<div class="jump-to-admin-in-info">
+    <p>您好，{{ r.user }}</p>
+    <a class="jump-to-admin-in-info-btn btn btn-primary" href="/admin/bookinfo/bookmodel/{{ book.id }}/" role="button">跳转至本书管理页面</a>
+</div>
+{% endif %}
+
 {% if msg %}
 <br>
 <div class="alert alert-info" role="alert">{{ msg }}</div>

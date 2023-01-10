@@ -2,6 +2,7 @@ from django.contrib import admin
 from .models import *
 from file.models import FileModel
 from django.contrib import messages
+from initer.utils import catchError
 
 # Register your models here.
 class BookAdmin(admin.ModelAdmin):
@@ -11,7 +12,6 @@ class BookAdmin(admin.ModelAdmin):
         'author', 
         'source', 
         'has_static_files', 
-        'has_warning',
         'last_update_time', 
         'is_deleted',
         )
@@ -21,14 +21,14 @@ class BookAdmin(admin.ModelAdmin):
     list_filter = (
         'source', 
         'has_static_files', 
-        'has_warning',
         'is_deleted',
         )
     actions = [
         'checkHasStaticFiles'
     ]
 
-    @admin.action(description='检查并更新所选 书籍 的静态文件状态')
+    @admin.action(description='检查并更新所选书籍的静态文件状态')
+    @catchError
     def checkHasStaticFiles(self, r, queryset):
         ttl = len(queryset)
         changed = 0
@@ -80,20 +80,19 @@ class VolumeAdmin(admin.ModelAdmin):
     list_display_links = (
         'name', 
     )
-    list_filter = (
-        'book', 
-    )
     actions = [
         'checkAndRemoveUnavailableObject', 
     ]
 
-    @admin.action(description='检查并移除对应文件已不存在的 单行本')
+
+    @admin.action(description='检查并移除对应文件已不存在的单行本')
+    @catchError
     def checkAndRemoveUnavailableObject(self, r, queryset):
         ttl = len(queryset)
         sces = 0
         for i in queryset:
             try:
-                FileModel.objects.get(id=i.id)
+                FileModel.objects.get(id=i.file_id)
             except:
                 sces += 1
                 i.delete()

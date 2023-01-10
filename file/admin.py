@@ -1,18 +1,22 @@
 from django.contrib import admin
 from .models import *
 from django.contrib import messages
+from initer.utils import catchError
 
 # Register your models here.
 class FileAdmin(admin.ModelAdmin):
     list_display = (
         'id', 
         'name', 
-        'digest', 
+        'is_auto_upload_file', 
         'upload_time', 
         'size', 
     )
     list_display_links = (
         'name', 
+    )
+    list_filter = (
+        'is_auto_upload_file', 
     )
     actions = [
         'safeDeleteQueryset', 
@@ -22,15 +26,20 @@ class FileAdmin(admin.ModelAdmin):
     def delete_queryset(self, r, queryset):
         self.message_user(
             r, 
-            '注意：Django自带的删除已弃用，请使用【安全删除】或【强制删除】。另请忽略下方的【成功删除】提示，实际上你刚刚什么也没有做。',
+            '注意：Django自带的删除已弃用，请使用【安全删除】或【强制删除】。'+
+            '也请您不要使用详情界面的【删除】'+
+            '另请忽略下方的【成功删除】提示，实际上你刚刚什么也没有做。',
             messages.WARNING
         )
         pass
 
     @admin.action(description='【强制删除】所选的对象')
+    @catchError
     def forceDeleteQueryset(self, r, queryset):
         ttl = len(queryset)
         queryset.delete()
+        for i in queryset:
+            i.digest.checkDigest()
         self.message_user(
             r, 
             '成功【强制删除】了%i个对象。'%ttl, 
@@ -44,6 +53,7 @@ class FileAdmin(admin.ModelAdmin):
         )
 
     @admin.action(description='【安全删除】所选的对象')
+    @catchError
     def safeDeleteQueryset(self, r, queryset):
         ttl = len(queryset)
         last = ttl
