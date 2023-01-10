@@ -1,0 +1,36 @@
+{% extends "mainpage/base.html" %}
+
+{% block title %}
+<title>验证邮箱 - KindleLN</title>
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'css/kindleln.css' %}">
+{% endblock title %}
+
+{% block content %}
+<div class="container">
+    <h2>验证邮箱</h2>
+    {% if msg %}
+    <div class="alert alert-warning" role="alert">{{ msg }}</div>
+    {% endif %}
+
+    {% if sent %}
+    <div>
+        <form class="enter-code-form form-inline" method="post">
+            <input type="text" class="enter-code-btn form-control" name="code" placeholder="Code" required>
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success">验证</button>
+        </form>
+    </div>
+
+    {% else %}
+    <div>请确认邮箱无误，然后点击【获取验证码】</div>
+    <pre>{{ email }}</pre>
+
+    <div class="get-code-btn">
+        <a class="btn btn-primary" href="{% url 'user:send_code' email=email%}" role="button">为{{ email }}获取验证码</a>
+    </div>
+
+    {% endif %}
+</div>
+{% endblock content %}

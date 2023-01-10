@@ -14,6 +14,7 @@
     <p>请点击以下按钮来删除{{ file.name }}.</p>
     <p>注意: 删除后可能会出现Bug, 请务必谨慎操作</p>
 
+    <a class="btn btn btn-success" href="{% url 'file:index' %}" role="button">返回文件列表</a>
     <a class="btn btn btn-danger" href="{% url 'file:delete' path=file.getUrlPath %}" role="button">确认删除</a>
 </div>
 {% endblock content %}

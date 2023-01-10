@@ -13,10 +13,11 @@
     <form method="post">
         {% csrf_token %}
         <div class="form-group">
-        <label for="new_name">新的文件名</label>
-        <input type="text" class="form-control" id="new_name" name="new_name" placeholder="{{ file.name }}">
-        <p class="help-block">请勿输入[/][$][^][(空格)]等字符</p>
-        <button type="submit" class="btn btn-primary">提交</button>
+            <label for="new_name">新的文件名</label>
+            <input type="text" class="form-control" id="new_name" name="new_name" placeholder="{{ file.name }}">
+            <p class="help-block">请勿输入[/][$][^][(空格)]等字符</p>
+            <a class="btn btn btn-success" href="{% url 'file:index' %}" role="button">返回文件列表</a>
+            <button type="submit" class="btn btn-primary">提交</button>
         </div>
     </form>
 </div>

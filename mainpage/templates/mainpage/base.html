@@ -25,6 +25,7 @@
     </div>
     <div class="right-header">
         {% if r.user.is_superuser %}
+        <a href="{% url 'error:index' %}">报错页面</a>
         <a href="/admin/">管理页面</a>
         <a href="{% url 'user:logout' %}">退出登录</a>
         {% else %}

@@ -8,29 +8,27 @@ import shutil
 import smtplib
 import time
 import uuid
+from email.mime.application import MIMEApplication
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from urllib import parse
 from zipfile import ZIP_DEFLATED, ZipFile
 
 import cfscrape
 import emoji
-
-from email.mime.application import MIMEApplication
-from email.mime.text import MIMEText
 import requests
 from bs4 import BeautifulSoup
 from django.conf import settings
 from django.shortcuts import get_object_or_404
-from initer.utils import catchError
 from django.utils import timezone
 
 from bookinfo.models import VolumeModel
+from initer.utils import catchError
 from KindleLN.settings import STATIC_URL
 
 from . import lnd_main
 from .models import (CheckUpdateRequestModel, DigestModel, EmailModel,
                      FileModel, PushRequestModel)
-
-from email.mime.multipart import MIMEMultipart
 
 # 我承认一次性导入不太好...谁来改改？（逃
 
@@ -212,6 +210,8 @@ def makeCheckUpdateRequset(book_boj):
 @catchError
 def makePushRequest(email, file_id):
     email_obj, b = EmailModel.objects.get_or_create(email=email)
+    if not email_obj.active:
+        return False
     for v in file_id:
         pr = PushRequestModel.objects.create(
             email=email_obj,
@@ -221,6 +221,8 @@ def makePushRequest(email, file_id):
         )
         pr.save()
         print(pr)
+
+    return True
 
 
 @catchError

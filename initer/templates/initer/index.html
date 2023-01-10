@@ -10,19 +10,30 @@
 
 {% block content %}
 <div class="container">
-
-{% for i in errors %}
-{% if i.read %}
-<div class="error-list error-list-read">
-    <p>【已读】</p>
+{% if num %}
+<div class="alert alert-warning" role="alert">{{ num }}条未读！</div>
 {% else %}
+<div class="alert alert-success" role="alert">很好，没有未读的报错！</div>
+{% endif %}
+
+{% for i in errors_unread %}
 <div class="error-list error-list-unread">
     <p>【未读】</p>
-{% endif %}
     <h2><a href="{% url 'error:info' id=i.id %}">{{ i.raised_time }}</a></h2>
     <div>由<code>{{ i.raised_by }}</code>发起</div>
     <div>简述：<code>{{ i.error_repr }}</code></div>
 </div>
+{% endfor %}
+
+{% for i in errors_read %}
+<div class="error-list error-list-read">
+    <p>【已读】</p>
+    <h2><a href="{% url 'error:info' id=i.id %}">{{ i.raised_time }}</a></h2>
+    <div>由<code>{{ i.raised_by }}</code>发起</div>
+    <div>简述：<code>{{ i.error_repr }}</code></div>
+</div>
+
+
 {% endfor %}
 
 </div>

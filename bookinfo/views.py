@@ -13,8 +13,10 @@ from initer.utils import catchError
 @catchError
 def indexView(r):
     books = BookModel.objects.filter(is_deleted=False).order_by('-last_update_time')
+    # msg = '您现在在的是【所有书籍】页面，需要热门推送请点击LOGO前往首页。'
+    msg = '【2023年1月10日 17:40:34】主页还在建设中！'
 
-    return render(r, 'bookinfo/index.html', {'books': books, 'r': r})
+    return render(r, 'bookinfo/index.html', {'books': books, 'r': r, 'msg': msg})
 
 
 @catchError
@@ -53,7 +55,7 @@ def searchView(r):
 @catchError
 def infoView(r, id):
     downloading, downloaded = False, False
-    msg = None
+    msg, activate, email = None, None, None
 
     book_obj = get_object_or_404(BookModel, id=id, is_deleted=False)
     source = book_obj.source
@@ -83,6 +85,7 @@ def infoView(r, id):
 
 
     if r.method == 'POST':
+        print('?')
         file_id = []
         files = []
         dct = dict(r.POST)
@@ -104,8 +107,12 @@ def infoView(r, id):
             file = VolumeModel.objects.get(id=i)
             files.append(file)
 
-        makePushRequest(email, files)
-        msg = '成功登记 %i 个对象至 %s.'%(len(files), email)
+        if makePushRequest(email, files):
+            msg = '成功登记 %i 个对象至 %s.'%(len(files), email)
+        else:
+            msg = '您没有对邮箱 %s 进行过验证，我们不能确保文件可以送至您的Kindle账号。\
+                请点击【验证邮箱】来验证并激活您的邮箱。（不必担心，这完全免费！）'%email
+            activate = True
 
     dct = {
         'book': book_obj, 
@@ -114,7 +121,9 @@ def infoView(r, id):
         'update_checked': update_checked,
         'vols': vols,
         'msg': msg,
-        'r': r
+        'activate': activate, 
+        'r': r, 
+        'email':email, 
     }
 
 

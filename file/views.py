@@ -14,7 +14,7 @@ from .utils import *
 def indexView(r):
     if r.method != 'GET' or not r.user.is_superuser:
         raise Http404
-    files = FileModel.objects.order_by('-upload_time')
+    files = FileModel.objects.order_by('-id')
     ua = r.headers["User-Agent"]
     request_from_kindle = (judgeUa(ua)=='k')
 
@@ -49,7 +49,6 @@ def deleteView(r, path):
 @catchError
 @login_required
 def renameView(r, file_name):
-    doCheckUpdateRequest()
     if not r.user.is_superuser:
         raise Http404('应该是503')
 

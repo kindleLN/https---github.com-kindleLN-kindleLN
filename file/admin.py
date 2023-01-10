@@ -82,11 +82,16 @@ class FileAdmin(admin.ModelAdmin):
 class EmailAdmin(admin.ModelAdmin):
     list_display = (
         'email', 
+        'active', 
         'last_push_time', 
         'total_push_times', 
+        'code', 
     )
     list_display_links = (
         'email', 
+    )
+    list_filter = (
+        'active', 
     )
 
 

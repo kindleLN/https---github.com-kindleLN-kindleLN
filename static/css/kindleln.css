@@ -1,5 +1,5 @@
 .file-detail {
-    background-color: gainsboro;
+    background-color: #f8f8f8;
     margin-top: 10px;
     padding: 10px 10px;
 }
@@ -128,51 +128,74 @@
     margin: 10px auto;
 }
 
-.jump-to-admin-in-info {
+.jump-to-sw {
     width: 250px;
     margin: 20px auto;
 }
 
-.jump-to-admin-in-info .jump-to-admin-in-info-btn {
+.jump-to-sw .jump-to-sw-btn {
     width: 250px;
 }
 
-.jump-to-admin-in-info p {
+.jump-to-sw p {
     line-height: 20px;
     margin: 0px;
 }
 
 
 .error-list-read {
-    height: 150px;
     margin: 20px auto;
-    padding: 10px ;
+    padding: 10px;
     background-color: #f8f8f8;
 }
 
 .error-list-unread {
-    height: 150px;
     margin: 20px auto;
-    padding: 10px ;
+    padding: 10px;
     background-color: #dddddd;
 }
 
 .error-list div {
     margin-top: 10px;
 }
+
 .error-list p {
     margin: 0;
 }
+
 .error-list h2 {
     margin-top: 0;
 }
+
 .error-list a {
     color: black;
 }
+
 .error-list a:hover {
     color: black;
 }
 
 .error-info div {
     margin-top: 20px;
+}
+
+
+.enter-code-form {
+    width: 290px;
+    margin: 10px auto;
+}
+
+.enter-code-form .enter-code-btn {
+    width: 230px; 
+    display: inline;
+}
+
+.get-code-btn {
+    margin: 20px auto;
+}
+
+
+.get-code-btn a{
+    display: block;
+    float: right;
 }

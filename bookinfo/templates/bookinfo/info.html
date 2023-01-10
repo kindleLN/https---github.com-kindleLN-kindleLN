@@ -29,10 +29,16 @@
     </div>
 </div>
 
+{% if activate %}
+<div class="jump-to-sw">
+    <a class="jump-to-sw-btn btn btn-primary" href="{% url 'user:activate_email' email=email step=0 %}" role="button">点这里验证邮箱</a>
+</div>
+{% endif %}
+
 {% if r.user.is_superuser %}
-<div class="jump-to-admin-in-info">
+<div class="jump-to-sw">
     <p>您好，{{ r.user }}</p>
-    <a class="jump-to-admin-in-info-btn btn btn-primary" href="/admin/bookinfo/bookmodel/{{ book.id }}/" role="button">跳转至本书管理页面</a>
+    <a class="jump-to-sw-btn btn btn-primary" href="/admin/bookinfo/bookmodel/{{ book.id }}/" role="button">跳转至本书管理页面</a>
 </div>
 {% endif %}
 

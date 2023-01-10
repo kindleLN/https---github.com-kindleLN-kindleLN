@@ -1,0 +1,20 @@
+{% extends "mainpage/base.html" %}
+
+{% block title %}
+<title>验证邮箱 - KindleLN</title>
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'css/kindleln.css' %}">
+{% endblock title %}
+
+{% block content %}
+<div class="container">
+    <h2>恭喜！</h2>
+    <div>{{ email }}已成功激活。您现在可以推送了。</div>
+    <div>另请注意，这意味着任何一个KindleLN用户都可以输入您的邮箱，并【替您】进行推送。</div>
+    <div>所以您不应该泄露您的邮箱给其他人！</div>
+    <br>
+    <div>KindleLN</div>
+    <div>{{ time }}</div>
+</div>
+{% endblock content %}

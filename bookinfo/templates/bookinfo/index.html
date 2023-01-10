@@ -13,6 +13,7 @@
     {% if msg %}
     <div class="alert alert-warning" role="alert">{{ msg }}</div>
     {% endif %}
+
     {% for book in books %}
     <a href="{% url 'info:info' id=book.id %}">
         <div class="book-index-view clearfix">

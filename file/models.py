@@ -7,15 +7,22 @@ from bookinfo.models import BookModel, VolumeModel
 
 # Create your models here.
 
-MEDIA_ROOT = os.path.join(settings.MEDIA_ROOT,'netdisk')
+MEDIA_ROOT = os.path.join(settings.MEDIA_ROOT, 'netdisk')
+
 
 class EmailModel(models.Model):
-    email = models.CharField(max_length=256, help_text='若修改，请保证以[@kindle.com]结尾')
+    email = models.CharField(
+        max_length=256, help_text='若修改，请保证以[@kindle.com]结尾')
     last_push_time = models.DateTimeField(
-        default=datetime.datetime.strptime('1900-1-1 9:00', '%Y-%m-%d %H:%M'),  
+        default=datetime.datetime.strptime('1900-1-1 9:00', '%Y-%m-%d %H:%M'),
         help_text='1900-1-1 9:00代表最近未推送.'
-        )
+    )
     total_push_times = models.IntegerField(default=0, help_text='已经推送的次数')
+    active = models.BooleanField(default=False, help_text='验证后才可以推送！')
+    code = models.IntegerField(
+        blank=True, null=True, help_text='这是用户验证邮箱时应该输入的验证码，您不应手动更改。')
+    last_send_code_time = models.DateTimeField(
+        blank=True, null=True, help_text='上次给用户发送验证码的时间')
 
     def __str__(self) -> str:
         return self.email
@@ -28,16 +35,18 @@ class EmailModel(models.Model):
 class FileModel(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=256)
-    digest = models.ForeignKey('DigestModel', on_delete=models.CASCADE, null=False, help_text='警告：请勿随意修改，除非你知道你在做什么！')
+    digest = models.ForeignKey(
+        'DigestModel', on_delete=models.CASCADE, null=False, help_text='警告：请勿随意修改，除非你知道你在做什么！')
     upload_time = models.DateField(auto_now_add=True)
     size = models.IntegerField(default=0)
-    is_auto_upload_file = models.BooleanField(default=True, help_text='是否为系统自动上传的文件')
-    
+    is_auto_upload_file = models.BooleanField(
+        default=True, help_text='是否为系统自动上传的文件')
+
     def __str__(self):
         return self.name
 
     def getFileInfo(self):
-        return '文件大小：%s | 创建时间：%s'%(self.getFileSize(), self.upload_time)
+        return '文件大小：%s | 创建时间：%s' % (self.getFileSize(), self.upload_time)
 
     def delete(self):
         if self.is_auto_upload_file:
@@ -45,7 +54,7 @@ class FileModel(models.Model):
             vol_obj.delete()
         self.digest.checkDigest()
         super().delete(using=None, keep_parents=False)
-        
+
     def getUrlPath(self):
         return self.name
 
@@ -54,7 +63,7 @@ class FileModel(models.Model):
 
     def removeFile(self):
         os.remove(self.getFilePath())
-    
+
     def getFileSize(self):
         size = self.size
         if size > 1024 ** 3:  # GB
@@ -66,17 +75,18 @@ class FileModel(models.Model):
         else:
             size = '{:.2f} Bytes'.format(size)
         return size
-    
+
     class Meta:
         verbose_name = '文件'
         verbose_name_plural = '文件'
 
 
 class DigestModel(models.Model):
-    digest = models.CharField(max_length=32, primary_key=True, help_text='警告：请勿随意修改，除非你知道你在做什么！')
+    digest = models.CharField(
+        max_length=32, primary_key=True, help_text='警告：请勿随意修改，除非你知道你在做什么！')
 
     def __str__(self):
-        return '[%s]%s'%(self.digest, str(self.filemodel_set.values_list('name')))
+        return '[%s]%s' % (self.digest, str(self.filemodel_set.values_list('name')))
 
     def getDigestInfo(self):
         return str(self.digest)
@@ -105,7 +115,7 @@ class DigestModel(models.Model):
         # 用于清除没有文件记录或没有对应文件的digest
         for digest in cls.objects.all():
             digest.checkDigest()
-    
+
     class Meta:
         verbose_name = 'Digest'
         verbose_name_plural = 'Digests'
@@ -117,11 +127,12 @@ class PushRequestModel(models.Model):
     email = models.ForeignKey(EmailModel, on_delete=models.CASCADE)
     file = models.ForeignKey(FileModel, on_delete=models.CASCADE)
     done = models.BooleanField(default=False, help_text='勾选代表已经完成推送')
-    done_time = models.DateTimeField(blank=True, null=True, help_text='完成推送的时间，请不要随意修改')
+    done_time = models.DateTimeField(
+        blank=True, null=True, help_text='完成推送的时间，请不要随意修改')
 
     def __str__(self) -> str:
-        return '[%s]%s'%(self.email, self.file)
-   
+        return '[%s]%s' % (self.email, self.file)
+
     class Meta:
         verbose_name = '推送请求'
         verbose_name_plural = '推送请求'
@@ -132,12 +143,12 @@ class CheckUpdateRequestModel(models.Model):
     request_time = models.DateTimeField(auto_now_add=True)
     book = models.ForeignKey(BookModel, on_delete=models.CASCADE)
     done = models.BooleanField(default=False, help_text='勾选代表已经完成更新检查')
-    done_time = models.DateTimeField(blank=True, null=True, help_text='完成检查的时间，请不要随意修改')
+    done_time = models.DateTimeField(
+        blank=True, null=True, help_text='完成检查的时间，请不要随意修改')
 
     def __str__(self) -> str:
         return self.book.name
-   
-    
+
     class Meta:
         verbose_name = '检查更新请求'
         verbose_name_plural = '检查更新请求'

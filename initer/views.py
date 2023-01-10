@@ -12,10 +12,13 @@ from .utils import catchError
 @catchError
 @login_required
 def indexView(r):
-    errors = ErrorModel.objects.order_by('-raised_time').order_by('read')
-    num = len(errors)
+    errors_read = ErrorModel.objects.filter(read=True).order_by('-raised_time')
+    errors_unread = ErrorModel.objects.filter(read=False).order_by('-raised_time')
+    num = len(errors_unread)
 
-    return render(r, 'initer/index.html', context={'errors': errors, 'num': num, 'r': r})
+    dct = {'errors_read': errors_read, 'num': num, 'r': r, 'errors_unread': errors_unread,}
+
+    return render(r, 'initer/index.html', dct)
 
 
 @catchError
