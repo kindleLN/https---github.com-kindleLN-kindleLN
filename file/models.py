@@ -33,6 +33,7 @@ class EmailModel(models.Model):
 
 
 class FileModel(models.Model):
+    """ 这里不用1对1，是因为（我猜）admin可能会把网站当网盘用 """
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=256)
     digest = models.ForeignKey(
@@ -110,7 +111,6 @@ class DigestModel(models.Model):
         # 用于清除数据库没有对应记录的文件
         for file in os.listdir(MEDIA_ROOT):
             if not cls.objects.filter(digest=file):
-                print(f"文件'{file}'无对应digest记录，已删除")
                 os.remove(os.path.join(MEDIA_ROOT, file))
         # 用于清除没有文件记录或没有对应文件的digest
         for digest in cls.objects.all():
@@ -152,3 +152,9 @@ class CheckUpdateRequestModel(models.Model):
     class Meta:
         verbose_name = '检查更新请求'
         verbose_name_plural = '检查更新请求'
+
+
+class CoverImgModel(models.Model):
+    """ 这个model和file的主要区别是，会保存在static里，而不是netdisk """
+    book = models.ForeignKey(BookModel, on_delete=models.CASCADE)
+    

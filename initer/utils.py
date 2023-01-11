@@ -5,7 +5,7 @@ from .models import ErrorModel
 
 
 def catchError(func):
-    """ 
+    """
     使用这个装饰器，可以捕获报错信息，并存储于【initer/ErrorModel】中。
 
     一般而言，除了`@admin.action()`，您应该把这个装饰器放在所有装饰器之前
@@ -34,6 +34,7 @@ def catchError(func):
             raise
 
     return innner
+
 
 @catchError
 def replaceTemplatesText(old_contact_email, new_contact_email):

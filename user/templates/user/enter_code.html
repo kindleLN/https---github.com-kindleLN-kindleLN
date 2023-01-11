@@ -12,6 +12,8 @@
     <h2>验证邮箱</h2>
     {% if msg %}
     <div class="alert alert-warning" role="alert">{{ msg }}</div>
+    <div>【在哪里？】您应该在2~3分钟后在Kindle设备/Kindle App/Amazon.com上看到一个名为【KindleLN验证码：xxxxxxx】的文档</div>
+    <div>如没有，可试试刷新网页/重启Kindle。</div>
     {% endif %}
 
     {% if sent %}
@@ -24,7 +26,27 @@
     </div>
 
     {% else %}
-    <div>请确认邮箱无误，然后点击【获取验证码】</div>
+    <div><b>首先，请先确认您的邮箱以【@kindle.com】结尾，而非【@kindle.cn】。</b></div>
+    <div>参见：</div>
+    <div><a href="https://www.amazon.cn/b/ref=s9_acss_bw_cg_none_1a1_w?ie=UTF8&node=2339201071&pf_rd_m=A1U5RCOVU0NYF2&pf_rd_s=merchandised-search-top-3&pf_rd_r=65JR6K4ZW289EWT87XY3&pf_rd_t=101&pf_rd_p=3336261a-9259-419e-ac1d-959ae1cbacd7&pf_rd_i=116169071">
+        【亚马逊中国：Kindle中国电子书店运营调整通知】
+    </a></div>
+    <div><a href="https://bookfere.com/post/985.html">【书伴：Kindle 退出中国后如何继续购买电子书及使用推送服务】</a></div>
+    <br>
+    <div>
+        <b>
+            然后，打开
+            <a href="https://www.amazon.com/hz/mycd/myx#/home/settings/payment">【亚马逊首选项】</a>
+            ，点击【Personal Document Settings】，找到【Approved Personal Document E-mail List】，
+            再点击【Add a new approved e-mail address】，输入【kindleln@126.com】，保存即可。
+        </b>
+    </div>
+    <div>请善用页内搜索和翻译。</div>
+    <div>参见：</div>
+    <div><a href="https://bookfere.com/post/3.html#push_3_2">【书伴：Kindle 推送教程：教你用电子邮箱推送电子书】</a></div>
+    <br>
+
+    <div>请在把【kindleln@126.com】添加至您的信任邮箱后，确认下方邮箱无误，然后点击【获取验证码】。</div>
     <pre>{{ email }}</pre>
 
     <div class="get-code-btn">
